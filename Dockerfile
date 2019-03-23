@@ -1,21 +1,22 @@
 FROM ruby:alpine
 
-ENV GITHUB_GEM_VERSION 192
-ENV JSON_GEM_VERSION 1.8.6
+RUN apk update && apk add --no-cache \
+  git
 
-RUN apk --update add --virtual build_deps \
-    build-base ruby-dev libc-dev linux-headers \
-  && gem install --verbose --no-document \
-    json:${JSON_GEM_VERSION} \
-    github-pages:${GITHUB_GEM_VERSION} \
-    jekyll-github-metadata \
-    minitest \
-  && apk del build_deps \
-  && apk add git \
-  && mkdir -p /usr/src/app \
-  && rm -rf /usr/lib/ruby/gems/*/cache/*.gem
+COPY . /src/gh/pages-gem
 
-WORKDIR /usr/src/app
+# one step to exclude .build_deps from docker cache
+RUN apk update && apk add --no-cache --virtual .build_deps \
+    make \
+    build-base && \
+  bundle config local.github-pages /src/gh/pages-gem && \
+  bundle install --gemfile=/src/gh/pages-gem/Gemfile && \
+  apk del .build_deps
 
-EXPOSE 4000 80
-CMD jekyll serve -d /_site --watch --force_polling -H 0.0.0.0 -P 4000
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+
+WORKDIR /src/site
+
+CMD ["jekyll", "serve", "-H", "0.0.0.0", "-P", "4000"]
