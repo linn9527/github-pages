@@ -8,7 +8,7 @@ Usage:
 
 Download the image ``` docker pull toddylin/github-pages:latest ``` or build youself
 
-Go into you workspace and run ``` docker run --rm  -p 4000:4000 -v ~/SourceTreeRepo/toddlam:/src/site toddylin/github-pages:lastest ``` 
+Go into you workspace and run ``` docker run --rm  -p 4000:4000 -v .:/src/site toddylin/github-pages:lastest ``` 
 
 Open your browser , visit `http://127.0.0.1:4000`
 
